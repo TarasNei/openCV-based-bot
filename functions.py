@@ -46,15 +46,15 @@ def get_screen(x1, y1, x2, y2):
 
 def smooth_move(autohotpy, x, y):
 	flags, cursor, (startX, startY) = win32gui.GetCursorInfo()
-	# coordinates = draw_line(startX, startY, x, y)
-	# autohotpy.moveMouseToPosition(x, y)
+	coordinates = draw_line(startX, startY, x, y)
+	autohotpy.moveMouseToPosition(x, y)
 
-	# x = 0
-	# for dot in coordinates:
-	# 	x += 1
-	# 	if x % 2 == 0 and x % 3 == 0:
-	# 		time.sleep(0.01)
-		# autohotpy.moveMouseToPosition(dot[0], dot[1])
+	x = 0
+	for dot in coordinates:
+		x += 1
+		if x % 2 == 0 and x % 3 == 0:
+			time.sleep(0.01)
+		autohotpy.moveMouseToPosition(dot[0], dot[1])
 
 
 def draw_line(x1=0, y1=0, x2=0, y2=0):

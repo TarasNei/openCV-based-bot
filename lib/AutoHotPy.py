@@ -881,7 +881,7 @@ class AutoHotPy(object):
     
     def moveMouseToPosition(self, x, y):
         width_constant = 65535.0/float(self.user32.GetSystemMetrics(0))
-        height_constant = 65535.0/float(self.user32.GetSystemMetrics (1)) 
+        height_constant = 65535.0/float(self.user32.GetSystemMetrics(1))
         # move mouse to the specified position
         stroke = InterceptionMouseStroke()
         stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_MOVE

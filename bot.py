@@ -15,6 +15,8 @@ class Bot:
 	HP_COLOR = [111, 23, 19]
 	HP_COLOR_VARIATION = [111, 23, 20]
 
+	MOB_Y_AXIS_CENTRING_FAULT = 50
+
 	def __init__(self, autohot_py):
 		self.autohot_py = autohot_py
 		self.window_info = get_window_info()
@@ -26,7 +28,6 @@ class Bot:
 		self.autohot_py.stop()
 
 	def get_targeted_hp(self):
-		# hp_color = [111, 23, 20]
 		target_bar_coordinates = {}
 		filled_red_pixels = 1
 
@@ -66,13 +67,10 @@ class Bot:
 			if pixel == self.HP_COLOR or pixel == self.HP_COLOR_VARIATION:
 				filled_red_pixels += 1
 
-		percent = 100 * filled_red_pixels / 150
+		percent = int(100 * filled_red_pixels / 150)
 		return percent
 
 	def set_target(self):
-		"""
-		find target and click
-		"""
 		img = get_screen(
 			self.window_info["x"],
 			self.window_info["y"],
@@ -80,13 +78,16 @@ class Bot:
 			self.window_info["y"] + self.window_info["height"] - 300
 		)
 
+		# temp = Image.fromarray(reshaped, "RGB")
+		# temp.show()
+
 		cnts = self.get_target_centers(img)
 
 		approxes = []
 		hulls = []
 		for cnt in cnts:
-			approxes.append(cv2.approxPolyDP(cnt, 0.01 * cv2.arcLength(cnt, True), True))
-			hulls.append(cv2.convexHull(cnt))
+			# approxes.append(cv2.approxPolyDP(cnt, 0.01 * cv2.arcLength(cnt, True), True))
+			# hulls.append(cv2.convexHull(cnt))
 
 			left = list(cnt[cnt[:, :, 0].argmin()][0])
 			right = list(cnt[cnt[:, :, 0].argmax()][0])
@@ -94,6 +95,9 @@ class Bot:
 				continue
 			center = round((right[0] + left[0]) / 2)
 			center = int(center)
+
+			if not center:
+				return False
 			# smooth_move(self.autohot_py, center + self.window_info["x"], left[1] + 110 + self.window_info["y"])
 			# time.sleep(0.1)
 			# if self.find_from_targeted(left, right):
@@ -101,20 +105,25 @@ class Bot:
 			#     return True
 
 			# Slide mouse down to find target
+			x = int((center + self.window_info["x"]) / 2)                 # maybe cuz dual monitors
+			y = left[1] + self.window_info["y"] + self.MOB_Y_AXIS_CENTRING_FAULT
 
-			iterator = 50
-			while iterator < 150:
-				time.sleep(0.3)
-				self.autohot_py.F1
-				smooth_move(
-					self.autohot_py,
-					center + self.window_info["x"],
-					left[1] + iterator + self.window_info["y"]
-				)
-			# if self.find_from_targeted(left, right):
-			# 	self.click_target()
-			# 	return True
-			# iterator += 30
+			self.autohot_py.moveMouseToPosition(x, y)
+			time.sleep(0.5)
+
+			self.click_target()
+			if self.get_targeted_hp():
+				return False
+
+			return True
+
+			# iterator = 50
+			# while iterator < 150:
+			# 	time.sleep(0.3)
+			#
+				# if self.find_from_targeted(left, right):
+				# 	return True
+			# 	iterator += 30
 
 		return False
 
@@ -134,16 +143,93 @@ class Bot:
 
 		# Find only white text
 		ret, threshold1 = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
-		cv2.imwrite('2_threshold1_img.png', threshold1)
+		# cv2.imwrite('2_threshold1_img.png', threshold1)
 
 		# Morphological transformation
-		kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (50, 5))
+		kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 5))
 		closed = cv2.morphologyEx(threshold1, cv2.MORPH_CLOSE, kernel)
-		cv2.imwrite('3_morphologyEx_img.png', closed)
+		# cv2.imwrite('3_morphologyEx_img.png', closed)
 		closed = cv2.erode(closed, kernel, iterations=1)
-		cv2.imwrite('4_erode_img.png', closed)
+		# cv2.imwrite('4_erode_img.png', closed)
 		closed = cv2.dilate(closed, kernel, iterations=1)
-		cv2.imwrite('5_dilate_img.png', closed)
+		# cv2.imwrite('5_dilate_img.png', closed)
 
 		(centers, hierarchy) = cv2.findContours(closed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 		return centers
+
+	def find_from_targeted(self, left, right):
+
+		# @TODO ignore red target - it is attacked and dead
+		template = cv2.imread('img/template_target.png', 0)
+
+		# print template.shape
+		roi = get_screen(
+			self.window_info["x"],
+			self.window_info["y"],
+			self.window_info["x"] + self.window_info["width"],
+			self.window_info["y"] + self.window_info["height"] - 300
+		)
+
+		roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+		cv2.imwrite('roi.png', roi)
+		ret, th1 = cv2.threshold(roi, 224, 255, cv2.THRESH_TOZERO_INV)
+		ret, th2 = cv2.threshold(th1, 135, 255, cv2.THRESH_BINARY)
+		ret, tp1 = cv2.threshold(template, 224, 255, cv2.THRESH_TOZERO_INV)
+		ret, tp2 = cv2.threshold(tp1, 135, 255, cv2.THRESH_BINARY)
+		if not hasattr(th2, 'shape'):
+			return False
+		wth, hth = th2.shape
+		wtp, htp = tp2.shape
+		if wth > wtp and hth > htp:
+			res = cv2.matchTemplate(th2, tp2, cv2.TM_CCORR_NORMED)
+			if res.any():
+				min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+				if max_val > 0.7:
+					return True
+				else:
+					return False
+		return False
+
+	def click_target(self):
+		# time.sleep(0.02)
+		stroke = InterceptionMouseStroke()
+		stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
+		self.autohot_py.sendToDefaultMouse(stroke)
+		stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
+		self.autohot_py.sendToDefaultMouse(stroke)
+
+	def go_somewhere(self):
+
+		self.set_default_camera()
+		self.autohot_py.moveMouseToPosition(450, 650)  # @TODO dynamic
+
+		stroke = InterceptionMouseStroke()
+
+		stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
+		self.autohot_py.sendToDefaultMouse(stroke)
+
+		stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
+		self.autohot_py.sendToDefaultMouse(stroke)
+
+		self.set_default_camera()
+
+	def set_default_camera(self):
+		self.autohot_py.PAGE_DOWN.press()
+		time.sleep(0.2)
+		self.autohot_py.PAGE_DOWN.press()
+		time.sleep(0.2)
+		self.autohot_py.PAGE_DOWN.press()
+		time.sleep(0.2)
+
+	def turn(self):
+		# turn right
+		stroke = InterceptionMouseStroke()
+
+		self.autohot_py.moveMouseToPosition(350, 500)
+		stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_RIGHT_BUTTON_DOWN
+		self.autohot_py.sendToDefaultMouse(stroke)
+
+		self.autohot_py.moveMouseToPosition(450, 500)
+		stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_RIGHT_BUTTON_UP
+		self.autohot_py.sendToDefaultMouse(stroke)
+
