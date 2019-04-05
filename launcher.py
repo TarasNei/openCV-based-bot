@@ -5,6 +5,7 @@ import threading
 
 
 class Singleton(type):
+
 	_instances = {}
 
 	def __call__(cls, *args, **kwargs):
@@ -22,11 +23,11 @@ class Launcher:
 
 	def __init__(self, char_class):
 		auto_py = AutoHotPy()
-		auto_py.registerExit(auto_py.ESC, self.stop_bot_event_handler)
+		auto_py.registerExit(auto_py.F12, self.stop_bot_event_handler)
 
 		self.bot_thread_stop_event = threading.Event()
-		self.auto_py_thread = threading.Thread(target=self.start_auto_py, args=(auto_py,))
 
+		self.auto_py_thread = threading.Thread(target=self.start_auto_py, args=(auto_py,))
 		self.bot_thread = threading.Thread(
 			target=self.start_bot,
 			args=(auto_py, self.bot_thread_stop_event, char_class)
@@ -38,8 +39,6 @@ class Launcher:
 	@staticmethod
 	def stop_bot_event_handler(auto, event):
 		auto.stop()
-		launcher = Launcher("Spoiler")
-		launcher.stop_bot()
 
 	@staticmethod
 	def start_auto_py(auto):
