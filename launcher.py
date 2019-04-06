@@ -1,4 +1,4 @@
-from char_classes.spoiler import Spoiler
+from char_classes.spoilerKeyBoardTargeting import Spoiler
 from lib.AutoHotPy import AutoHotPy
 
 import threading

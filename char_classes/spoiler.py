@@ -27,7 +27,7 @@ class Spoiler(Bot):
 					time.sleep(0.2)
 					print('go somewhere')
 					self.go_somewhere()
-					time.sleep(0.8)
+					time.sleep(0.4)
 					i = 0
 
 				print("attack the target")
@@ -40,17 +40,18 @@ class Spoiler(Bot):
 					spoiled = False
 					print("sweep")
 					self.autohot_py.F3.press()
-					time.sleep(0.1)
+					time.sleep(0.2)
 					self.autohot_py.F3.press()
-					time.sleep(0.1)
+					time.sleep(0.2)
 				print("picking up drop")
 				self.autohot_py.F4.press()
-				time.sleep(0.2)
+				time.sleep(0.1)
 				self.autohot_py.F4.press()
-				time.sleep(0.2)
+				time.sleep(0.1)
 				self.autohot_py.F4.press()
-				time.sleep(0.2)
+				time.sleep(0.1)
 				self.autohot_py.F4.press()
+				self.autohot_py.F5.press()
 
 				print("target is dead")
 				continue
@@ -58,6 +59,7 @@ class Spoiler(Bot):
 				print("no target yet")
 				# Find and click on the victim
 				if self.set_target():
+					self.autohot_py.UP_ARROW.press()
 					spoiled = False
 					self.useless_steps = 0
 					print("set_target - attack")
