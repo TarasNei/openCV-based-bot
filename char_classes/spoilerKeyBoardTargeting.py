@@ -1,6 +1,6 @@
 from functions import *
 from bot import Bot
-
+import random
 
 class Spoiler(Bot):
 	ATTACKS_LIMIT_BEFORE_TURN = 3
@@ -8,6 +8,7 @@ class Spoiler(Bot):
 	__spoiled = False
 
 	def loop(self, stop_event):
+
 		attacks = 0
 		while not stop_event.is_set():
 			targeted_hp = self.get_targeted_hp()
@@ -17,7 +18,7 @@ class Spoiler(Bot):
 
 				self.spoil(targeted_hp)
 
-				if attacks > self.ATTACKS_LIMIT_BEFORE_TURN:
+				if attacks > self.ATTACKS_LIMIT_BEFORE_TURN and targeted_hp >= 100:
 					print('turn')
 					self.turn()
 					time.sleep(0.2)
@@ -50,19 +51,12 @@ class Spoiler(Bot):
 					continue
 
 				print("picking up drop")
-				self.autohot_py.F4.press()  # investigate
-				time.sleep(0.3)
-				self.autohot_py.F4.press()
-				time.sleep(0.3)
-				self.autohot_py.F4.press()
-				time.sleep(0.3)
-				self.autohot_py.F4.press()
-				time.sleep(0.3)
-				self.autohot_py.F4.press()
-				time.sleep(0.3)
-				self.autohot_py.F4.press()
+				for i in range(5):
+					self.autohot_py.F4.press()
+					time.sleep(0.7)
+				print("target is dead, find another")
+				self.set_target()
 
-				print("target is dead")
 				continue
 			else:
 				print("no target yet")
@@ -70,10 +64,7 @@ class Spoiler(Bot):
 				self.__spoiled = False
 				self.useless_steps = 0
 				print("define target")
-				self.autohot_py.F8.press()  # Targets macro todo random
-				self.autohot_py.F6.press()
-				self.autohot_py.F7.press()
-				self.autohot_py.F1.press()
+				self.set_target()
 
 				targeted_hp = self.get_targeted_hp()
 				if targeted_hp:
@@ -100,3 +91,13 @@ class Spoiler(Bot):
 			self.__spoiled = True
 			self.autohot_py.F2.press()
 			time.sleep(0.3)
+
+	def set_target(self):
+		random_target = int(random.randrange(0, 2))
+
+		if random_target == 1:
+			self.autohot_py.F6.press()
+		elif random_target == 2:
+			self.autohot_py.F8.press()
+		else:
+			self.autohot_py.F7.press()

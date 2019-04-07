@@ -148,10 +148,7 @@ class Bot:
 	def go_somewhere(self):
 
 		self.set_default_camera()
-		if random.choice([True, False]):
-			self.autohot_py.moveMouseToPosition(900, 650)  # @TODO dynamic
-		else:
-			self.autohot_py.moveMouseToPosition(100, 650)  # @TODO dynamic
+		self.autohot_py.moveMouseToPosition(900, 650)  # @TODO dynamic
 
 		time.sleep(0.1)
 		for i in range(2):
@@ -161,8 +158,7 @@ class Bot:
 			time.sleep(0.2)
 			stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
 			self.autohot_py.sendToDefaultMouse(stroke)
-		# time.sleep(1)
-		# self.set_default_camera()
+
 
 	def set_default_camera(self):
 		self.autohot_py.PAGE_DOWN.press()
