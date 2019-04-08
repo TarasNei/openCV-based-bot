@@ -6,6 +6,8 @@ import win32gui
 
 WINDOW_SUBSTRING = "Lineage"
 
+CUT_WINDOW_TITLE = 30
+CUT_SIDE_FRAME = 8
 
 def get_window_info():
 	# set window info
@@ -33,7 +35,7 @@ def set_window_coordinates(hwnd, window_info):
 
 
 def get_screen(x1, y1, x2, y2):
-	box = (x1 + 8, y1 + 30, x2 - 8, y2)
+	box = (x1 + CUT_SIDE_FRAME, y1 + CUT_WINDOW_TITLE, x2 - CUT_SIDE_FRAME, y2)
 	screen = ImageGrab.grab(box)
 	img = array(screen.getdata(), dtype=uint8)
 	reshaped = img.reshape((screen.size[1], screen.size[0], 3))
