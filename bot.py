@@ -1,6 +1,7 @@
 import cv2
 import random
 import numpy as np
+import imutils
 
 from functions import *
 from lib.InterceptionWrapper import InterceptionMouseState, InterceptionMouseStroke
@@ -30,6 +31,10 @@ class Bot:
 	LENGTH_FROM_TOP_BORDER = 28
 	LENGTH_OF_HP_STRING = 187
 	LENGTH_OF_HP_BOTTOM_BORDER = 59
+
+	CHARACTER_HEIGHT = 220
+	CHARACTER_WIDTH = 100
+
 
 	def __init__(self, autohot_py):
 		self.autohot_py = autohot_py
@@ -154,8 +159,9 @@ class Bot:
 
 	def go_somewhere(self):
 
-		self.set_default_camera()
-		self.autohot_py.moveMouseToPosition(900, 650)  # @TODO dynamic
+		# self.set_default_camera()
+
+		self.autohot_py.moveMouseToPosition(900, 800)  # @TODO dynamic
 
 		time.sleep(0.1)
 		for i in range(2):
@@ -184,7 +190,47 @@ class Bot:
 		stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_RIGHT_BUTTON_DOWN
 		self.autohot_py.sendToDefaultMouse(stroke)
 		time.sleep(0.2)
-		self.autohot_py.moveMouseToPosition(700, 500)
+		self.autohot_py.moveMouseToPosition(500, 500)
 		stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_RIGHT_BUTTON_UP
 		self.autohot_py.sendToDefaultMouse(stroke)
 
+	def isStacked(self):
+		self.set_default_camera()
+
+		firstFrame = get_screen(
+			self.window_info["width"] / 2 - self.CHARACTER_WIDTH / 2,
+			self.window_info["height"] / 2 - self.CHARACTER_HEIGHT / 2,
+			self.window_info["width"] / 2 + self.CHARACTER_WIDTH / 2,
+			self.window_info["height"] / 2 + self.CHARACTER_HEIGHT / 2,
+		)
+		firstFrame = cv2.cvtColor(firstFrame, cv2.COLOR_BGR2GRAY)
+		firstFrame = cv2.GaussianBlur(firstFrame, (21,21), 0)
+
+		secondFrame = get_screen(
+			self.window_info["width"] / 2 - self.CHARACTER_WIDTH / 2,
+			self.window_info["height"] / 2 - self.CHARACTER_HEIGHT / 2,
+			self.window_info["width"] / 2 + self.CHARACTER_WIDTH / 2,
+			self.window_info["height"] / 2 + self.CHARACTER_HEIGHT / 2,
+		)
+		secondFrame = cv2.cvtColor(secondFrame, cv2.COLOR_BGR2GRAY)
+		secondFrame = cv2.GaussianBlur(secondFrame, (21,21), 0)
+
+		frameDelta = cv2.absdiff(firstFrame, secondFrame)
+
+		threshold = cv2.threshold(frameDelta, 150, 255, cv2.THRESH_BINARY)[1]
+		threshold = cv2.dilate(threshold, None, iterations=2)
+
+		contours = cv2.findContours(threshold.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+		contours = imutils.grab_contours(contours)
+
+		for contour in contours:
+			if cv2.contourArea(contour) < 25:
+				continue
+			(x, y, w, h) = cv2.boundingRect(contour)
+			cv2.rectangle(firstFrame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+		cv2.imwrite("SecurityFeed.png", firstFrame)
+		cv2.imwrite("Thresh.png", threshold)
+		cv2.imwrite("FrameDelta.png", frameDelta)
+
+		a = 123
