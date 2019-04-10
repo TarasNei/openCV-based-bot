@@ -11,8 +11,7 @@ class Spoiler(Bot):
 
 	def loop(self, stop_event):
 		attacks = 0
-		self.isStacked()
-
+		self.isDropStillLeft()
 		while not stop_event.is_set():
 			targeted_hp = self.get_targeted_hp()
 			if targeted_hp > 0:
@@ -21,15 +20,15 @@ class Spoiler(Bot):
 
 				self.spoil(targeted_hp)
 
-				if attacks > self.ATTACKS_LIMIT_BEFORE_TURN and targeted_hp >= 100:
+				if attacks > self.ATTACKS_LIMIT_BEFORE_TURN and targeted_hp >= 100 and self.isStacked():
 					print(bcolors.BOLD, 'go somewhere', bcolors.ENDC)
 					self.go_somewhere()
-					time.sleep(0.6)
+					time.sleep(1)
 					print(bcolors.BOLD, 'turn', bcolors.ENDC)
 					self.turn()
 					attacks = 0
 
-				print("attack the target")
+				print(bcolors.OKGREEN, "attack the target", bcolors.ENDC)
 				self.autohot_py.F1.press()
 				attacks += 1
 				continue
@@ -37,13 +36,13 @@ class Spoiler(Bot):
 
 				if self.__spoiled is True:
 					self.__spoiled = False
-					print(bcolors.OKGREEN, "sweep", bcolors.ENDC)
+					print(bcolors.WARNING, "sweep", bcolors.ENDC)
 					self.autohot_py.F3.press()
 					time.sleep(0.2)
 					self.autohot_py.F3.press()
 					time.sleep(0.2)
 
-				self.autohot_py.F5.press()
+				self.autohot_py.F5.press() # todo plater hp detection
 				time.sleep(0.3)
 				self.autohot_py.F1.press()
 				targeted_hp = self.get_targeted_hp()
@@ -53,9 +52,17 @@ class Spoiler(Bot):
 					continue
 
 				print(bcolors.OKGREEN, "picking up drop", bcolors.ENDC)
-				for i in range(5):
+				for i in range(3):
 					self.autohot_py.F4.press()
-					time.sleep(0.7)
+					time.sleep(0.4)
+
+				if self.isDropStillLeft():
+					print(bcolors.WARNING, 'Looking for gold', bcolors.ENDC)
+					self.autohot_py.F4.press()
+					time.sleep(0.4)
+					self.autohot_py.F4.press()
+					time.sleep(0.4)
+
 				print( "target is dead, find another")
 				self.set_target()
 
