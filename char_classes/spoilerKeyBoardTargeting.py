@@ -11,9 +11,15 @@ class Spoiler(Bot):
 
 	def loop(self, stop_event):
 		attacks = 0
-		self.isDropStillLeft()
+
 		while not stop_event.is_set():
+
+			player_hp = self.get_player_hp()
 			targeted_hp = self.get_targeted_hp()
+
+			if player_hp < 50 and targeted_hp <= 0:
+				self.regenerateHp()
+
 			if targeted_hp > 0:
 				print(bcolors.OKBLUE, 'target hp', targeted_hp, '%', bcolors.ENDC)
 				self.useless_steps = 0
@@ -42,7 +48,9 @@ class Spoiler(Bot):
 					self.autohot_py.F3.press()
 					time.sleep(0.2)
 
-				self.autohot_py.F5.press() # todo plater hp detection
+				self.pickUpDrop()
+
+				self.autohot_py.F5.press() # todo player hp detection
 				time.sleep(0.3)
 				self.autohot_py.F1.press()
 				targeted_hp = self.get_targeted_hp()
@@ -50,18 +58,6 @@ class Spoiler(Bot):
 					print(bcolors.FAIL, 'under attack!', bcolors.ENDC)
 					self.spoil(targeted_hp)
 					continue
-
-				print(bcolors.OKGREEN, "picking up drop", bcolors.ENDC)
-				for i in range(3):
-					self.autohot_py.F4.press()
-					time.sleep(0.4)
-
-				if self.isDropStillLeft():
-					print(bcolors.WARNING, 'Looking for gold', bcolors.ENDC)
-					self.autohot_py.F4.press()
-					time.sleep(0.4)
-					self.autohot_py.F4.press()
-					time.sleep(0.4)
 
 				print( "target is dead, find another")
 				self.set_target()
@@ -100,13 +96,50 @@ class Spoiler(Bot):
 			self.__spoiled = True
 			self.autohot_py.F2.press()
 			time.sleep(0.3)
-
+	#
 	def set_target(self):
-		random_target = int(random.randrange(0, 2))
+		self.autohot_py.F6.press()
+		# random_target = int(random.randrange(0, 2))
+		#
+		# if random_target == 1:
+		# 	self.autohot_py.F6.press()
+		# elif random_target == 2:
+		# 	self.autohot_py.F8.press()
+		# else:
+		# 	self.autohot_py.F7.press()
 
-		if random_target == 1:
-			self.autohot_py.F6.press()
-		elif random_target == 2:
-			self.autohot_py.F8.press()
-		else:
-			self.autohot_py.F7.press()
+	def regenerateHp(self):
+		hp1	= self.get_player_hp()
+		time.sleep(1)
+		hp2	= self.get_player_hp()
+
+		if  hp2 < hp1:
+			print(bcolors.FAIL, 'cant regen hp, under attack!', bcolors.ENDC)
+
+			while True:
+				self.autohot_py.F5.press()
+
+				if self.get_targeted_hp():
+					while self.get_targeted_hp():
+						self.autohot_py.F1.press()
+						time.sleep(0.75)
+				else:
+					break
+
+		self.pickUpDrop() # in case if it was a fight
+
+		print(bcolors.OKGREEN, 'regenerating hp', bcolors.ENDC)
+		self.autohot_py.F11.press()
+
+		hp = self.get_player_hp()
+		while hp < 90:
+			print(bcolors.OKBLUE, 'hero hp -', bcolors.BOLD, self.get_player_hp() + '%', bcolors.ENDC)
+			time.sleep(3)
+		self.autohot_py.F11.press()
+
+
+	def pickUpDrop(self):
+		print(bcolors.OKGREEN, "picking up drop", bcolors.ENDC)
+		for i in range(4):
+			self.autohot_py.F4.press()
+			time.sleep(0.5)

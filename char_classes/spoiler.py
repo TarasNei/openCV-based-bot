@@ -21,15 +21,6 @@ class Spoiler(Bot):
 					self.autohot_py.F2.press()
 					time.sleep(0.2)
 
-				if i > 4:
-					print('turn')
-					self.turn()
-					time.sleep(0.2)
-					print('go somewhere')
-					self.go_somewhere()
-					time.sleep(0.4)
-					i = 0
-
 				print("attack the target")
 				self.autohot_py.F1.press()
 				i += 1
