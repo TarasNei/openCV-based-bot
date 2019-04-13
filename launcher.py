@@ -1,4 +1,5 @@
 from char_classes.spoilerKeyBoardTargeting import Spoiler
+from char_classes.meleeKeyboard import Melee
 from lib.AutoHotPy import AutoHotPy
 
 import threading
@@ -48,6 +49,7 @@ class Launcher:
 	def start_bot(auto, stop_event, character_class):
 		classmap = {
 			'Spoiler': Spoiler
+			# 'Melee': Melee
 		}
 		bot = classmap[character_class](auto)
 		bot.loop(stop_event)

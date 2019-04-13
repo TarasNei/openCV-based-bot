@@ -24,7 +24,7 @@ class Bot:
 
 	CUT_SCREEN_TOP = 50
 	CUT_SCREEN_BOTTOM = 350
-	CUT_SCREEN_BOTTOM_TARGET_BAR = 935
+	CUT_SCREEN_BOTTOM_TARGET_BAR = 900
 
 	CHARACTER_HEIGHT = 220
 	CHARACTER_WIDTH = 100
@@ -48,7 +48,7 @@ class Bot:
 		)
 
 		img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-		# cv2.imwrite('grey.png', img_gray)
+		cv2.imwrite('grey.png', img_gray)
 		template = cv2.imread(self.TARGET_BAR_HF5, 0)
 		# cv2.imwrite('templateTargetBar.png', template)
 		w, h = template.shape[::-1]
@@ -203,14 +203,19 @@ class Bot:
 		x2 = self.window_info["width"] / 2 + self.CHARACTER_WIDTH / 2
 		y2 = self.window_info["height"] / 2 + self.CHARACTER_HEIGHT / 2
 
+
 		firstFrame = get_screen(x1, y1, x2, y2)
+		# temp = Image.fromarray(firstFrame, "RGB")
+		# temp.show()
 		firstFrame = cv2.cvtColor(firstFrame, cv2.COLOR_BGR2GRAY)
-		time.sleep(0.8)
+		time.sleep(0.4)
 		secondFrame = get_screen(x1, y1, x2, y2)
+		# temp = Image.fromarray(secondFrame, "RGB")
+		# temp.show()
 		secondFrame = cv2.cvtColor(secondFrame, cv2.COLOR_BGR2GRAY)
 
 		res = cv2.matchTemplate(firstFrame, secondFrame, cv2.TM_CCOEFF_NORMED)
-		threshold = 0.95
+		threshold = 0.8
 		loc = np.where(res >= threshold)
 
 		for pt in zip(*loc[::-1]):
