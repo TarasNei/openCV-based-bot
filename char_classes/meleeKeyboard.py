@@ -74,35 +74,36 @@ class Melee(Bot):
 			self.set_target()
 
 	def regenerateHp(self):
-		self.autohot_py.F3.press()
+		self.autohot_py.F3.press() # potion
 
-		# hp1	= self.get_player_hp()
-		# time.sleep(1)
-		# hp2	= self.get_player_hp()
-		#
-		# if  hp2 < hp1:
-		# 	print(bcolors.FAIL, 'cant regen hp, under attack!', bcolors.ENDC)
-		#
-		# 	while True:
-		# 		self.autohot_py.F5.press()
-		#
-		# 		if self.get_targeted_hp():
-		# 			while self.get_targeted_hp():
-		# 				self.autohot_py.F1.press()
-		# 				time.sleep(0.75)
-		# 		else:
-		# 			break
-		#
-		# self.pickUpDrop() # in case if it was a fight
-		#
-		# print(bcolors.OKGREEN, 'regenerating hp', bcolors.ENDC)
-		# self.autohot_py.F11.press()
+		hp1	= self.get_player_hp()
+		time.sleep(1)
+		hp2	= self.get_player_hp()
 
-		# hp = self.get_player_hp()
-		# while hp < 90:
-		# 	print(bcolors.OKBLUE, 'hero hp -', bcolors.BOLD, int(self.get_player_hp()), bcolors.ENDC)
-		# 	time.sleep(3)
-		# self.autohot_py.F11.press()
+		if  hp2 < hp1:
+			print(bcolors.FAIL, 'cant regen hp, under attack!', bcolors.ENDC)
+
+			while True:
+				self.autohot_py.F5.press()
+
+				if self.get_targeted_hp():
+					while self.get_targeted_hp():
+						self.autohot_py.F1.press()
+						time.sleep(0.75)
+				else:
+					break
+
+		self.pickUpDrop() # in case if it was a fight
+
+		print(bcolors.OKGREEN, 'regenerating hp', bcolors.ENDC)
+		self.autohot_py.F11.press()
+
+		hp = self.get_player_hp()
+		while hp < 90:
+			hp = self.get_player_hp()
+			print(bcolors.OKBLUE, 'hero hp -', bcolors.BOLD, int(hp), bcolors.ENDC)
+			time.sleep(3)
+		self.autohot_py.F11.press()
 
 
 	def pickUpDrop(self):

@@ -378,3 +378,53 @@ class Bot:
 		percent = int(100 * filled_red_pixels / 90)
 
 		return percent
+
+	def get_mp(self):
+		target_bar_coordinates = {}
+		filled_red_pixels = 1
+		hp_template = 'img/hp.png'
+
+		img = get_screen(
+			self.window_info["x"],
+			self.window_info["y"],
+			self.window_info["x"] + 200,
+			self.window_info["y"] + self.window_info["height"] - self.CUT_SCREEN_BOTTOM_TARGET_BAR
+		)
+
+		img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		template = cv2.imread(hp_template, 0)
+		res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+
+		threshold = 0.8
+		loc = np.where(res >= threshold)
+		if np.count_nonzero(loc) == 2:
+			for pt in zip(*loc[::-1]):
+				target_bar_coordinates = {"x": pt[0], "y": pt[1]}
+
+		if not target_bar_coordinates:
+			return -1
+
+		# find hp string on the target bar
+		right_border = -7
+		top_border = 33
+		mp_string_length = 162
+		bottom_border = 65
+
+		pil_image_hp = get_screen(
+			self.window_info["x"] + target_bar_coordinates['x'] + right_border,
+			self.window_info["y"] + target_bar_coordinates['y'] + top_border,
+			self.window_info["x"] + target_bar_coordinates['x'] + mp_string_length,
+			self.window_info["y"] + target_bar_coordinates['y'] + bottom_border
+		)
+
+		# temp = Image.fromarray(pil_image_hp, "RGB")
+		# temp.show()
+
+		pixels = pil_image_hp[0].tolist()
+		for pixel in pixels:
+			if pixel == [7, 64, 146]:
+				filled_red_pixels += 1
+
+		percent = int(100 * filled_red_pixels / 90)
+
+		return percent
