@@ -12,7 +12,6 @@ class Bot:
 	TARGET_MIN_NAME_SIZE = (40, 5)
 	TARGET_LONG_NAME_FAULT = 5 # todo dynamic
 
-	TARGET_BAR_HF5 = 'img/hf5target_bar_RBG.png'
 
 	TARGET_BAR_DEFAULT_WIDTH = 188
 	TARGET_BAR_HEIGHT = 50
@@ -48,8 +47,9 @@ class Bot:
 		)
 
 		img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-		cv2.imwrite('grey.png', img_gray)
-		template = cv2.imread(self.TARGET_BAR_HF5, 0)
+		# cv2.imwrite('grey.png', img_gray)
+
+		template = cv2.imread('img/hf5target_bar_RBG.png', 0)
 		# cv2.imwrite('templateTargetBar.png', template)
 		w, h = template.shape[::-1]
 		res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
@@ -59,7 +59,7 @@ class Bot:
 		if np.count_nonzero(loc) == 2:
 			for pt in zip(*loc[::-1]):
 				target_bar_coordinates = {"x": pt[0], "y": pt[1]}
-			# cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), (255, 255, 255), 2)
+			cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), (255, 255, 255), 2)
 		# cv2.imwrite('target_bar.png', img)
 
 		if not target_bar_coordinates:
