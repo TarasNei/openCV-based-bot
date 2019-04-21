@@ -48,8 +48,8 @@ class Launcher:
 	@staticmethod
 	def start_bot(auto, stop_event, character_class):
 		classmap = {
-			'Spoiler': Spoiler
-			# 'Melee': Melee
+			# 'Spoiler': Spoiler
+			'Melee': Melee
 		}
 		bot = classmap[character_class](auto)
 		bot.loop(stop_event)

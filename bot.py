@@ -49,9 +49,9 @@ class Bot:
 		img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 		# cv2.imwrite('grey.png', img_gray)
 
-		template = cv2.imread('img/hf5target_bar_RBG.png', 0)
+		template = cv2.imread('img/hf5target_bar_RBG2.png', 0)
 		# cv2.imwrite('templateTargetBar.png', template)
-		w, h = template.shape[::-1]
+		# w, h = template.shape[::-1]
 		res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
 
 		threshold = 0.8
@@ -59,7 +59,7 @@ class Bot:
 		if np.count_nonzero(loc) == 2:
 			for pt in zip(*loc[::-1]):
 				target_bar_coordinates = {"x": pt[0], "y": pt[1]}
-			cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), (255, 255, 255), 2)
+			# cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), (255, 255, 255), 2)
 		# cv2.imwrite('target_bar.png', img)
 
 		if not target_bar_coordinates:
@@ -67,9 +67,9 @@ class Bot:
 
 		# to find hp string on the target bar
 		right_border = 20
-		top_border = 28
-		hp_string_length = 187
-		bottom_border = 59
+		top_border = 25
+		hp_string_length = 186
+		bottom_border = 58
 
 		pil_image_hp = get_screen(
 			self.window_info["x"] + target_bar_coordinates['x'] + right_border,
@@ -77,6 +77,8 @@ class Bot:
 			self.window_info["x"] + target_bar_coordinates['x'] + hp_string_length,
 			self.window_info["y"] + target_bar_coordinates['y'] + bottom_border
 		)
+		# temp = Image.fromarray(pil_image_hp, "RGB")
+		# temp.show()
 
 		pixels = pil_image_hp[0].tolist()
 		for pixel in pixels:
@@ -159,7 +161,7 @@ class Bot:
 		self.autohot_py.sendToDefaultMouse(stroke)
 
 	def go_somewhere(self):
-		self.set_default_camera()
+		# self.set_default_camera()
 
 		self.autohot_py.moveMouseToPosition(900, 800)  # @TODO dynamic
 		time.sleep(0.1)

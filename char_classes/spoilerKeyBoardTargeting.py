@@ -26,18 +26,18 @@ class Spoiler(Bot):
 				self.spoil(targeted_hp)
 
 
-				if attacks > self.ATTACKS_LIMIT_BEFORE_TURN and targeted_hp >= 100 and self.isStacked():
+				if targeted_hp >= 100 and self.isStacked():
 					print(bcolors.BOLD, 'go somewhere', bcolors.ENDC)
 					self.go_somewhere()
 					time.sleep(1)
 					print(bcolors.BOLD, 'turn', bcolors.ENDC)
 					self.turn()
-					attacks = 0
 
-				if not attacks % 7 and targeted_hp >= 95: # bad
+				if attacks > 10 and targeted_hp > 98: # bad
 					self.autohot_py.F5.press()
 					time.sleep(0.3)
 					self.autohot_py.F1.press()
+					attacks = 0
 
 				print(bcolors.OKGREEN, "attack the target", bcolors.ENDC)
 				self.autohot_py.F1.press()
@@ -48,6 +48,8 @@ class Spoiler(Bot):
 				if self.__spoiled is True:
 					self.__spoiled = False
 					print(bcolors.WARNING, "sweep", bcolors.ENDC)
+					self.autohot_py.F3.press()
+					time.sleep(0.2)
 					self.autohot_py.F3.press()
 					time.sleep(0.2)
 					self.autohot_py.F3.press()
@@ -66,22 +68,6 @@ class Spoiler(Bot):
 				self.set_target()
 				continue
 
-				# targeted_hp = self.get_targeted_hp()
-				# if targeted_hp:
-				# 	time.sleep(0.5)
-				# 	self.autohot_py.F1.press()
-				# 	continue
-				# elif self.useless_steps > 2:
-				# 	# We're stuck, go somewhere
-				# 	self.useless_steps = 0
-				# 	print(bcolors.BOLD, 'go somewhere', bcolors.ENDC)
-				# 	self.go_somewhere()
-				# else:
-				# 	# Turn on 90 degrees
-				# 	self.useless_steps += 1
-				# 	self.turn()
-				# 	print("turn")
-
 		print("loop finished!")
 
 	def spoil(self, targeted_hp):
@@ -95,8 +81,8 @@ class Spoiler(Bot):
 
 	def set_target(self):
 		# self.autohot_py.F6.press()
-		random_target = int(random.randrange(0, 1))
-		# random_target = bool(random.getrandbits(1))
+		# random_target = int(random.randrange(0, 1))
+		random_target = bool(random.getrandbits(1))
 
 		if random_target:
 			self.autohot_py.F6.press()
