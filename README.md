@@ -1,1 +1,1 @@
-# cloned https://habr.com/ru/post/346258/
+# https://habr.com/ru/post/346258/
